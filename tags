@@ -24,10 +24,10 @@ TERMCONTROLLER_H	src/termController.h	/^#define TERMCONTROLLER_H$/;"	d
 TermSize	src/termController.h	/^struct TermSize {$/;"	s
 all	Makefile	/^all: $(EXE)$/;"	t
 appendLineNode	src/linkedLines.c	/^void appendLineNode(struct LineNode** head, struct LineNode* newNode) {$/;"	f	typeref:typename:void
-c	src/editor.c	/^static char c;                              \/\/ Stores currently pressed character$/;"	v	typeref:typename:char	file:
+c	src/editor.c	/^char c;                              \/\/ Stores currently pressed character$/;"	v	typeref:typename:char
 clean	Makefile	/^clean:$/;"	t
 clear	src/termController.c	/^void clear(){$/;"	f	typeref:typename:void
-col	src/editor.c	/^static int row = 1, col = 1;                \/\/ Current cursor position$/;"	v	typeref:typename:int	file:
+col	src/editor.c	/^int row = 1, col = 1;                \/\/ Current cursor position$/;"	v	typeref:typename:int
 cookTerm	src/editor.c	/^void cookTerm(struct LineNode** head) {$/;"	f	typeref:typename:void
 createLinkedList	src/linkedLines.c	/^int createLinkedList(struct LineNode** head, const char* fName) {$/;"	f	typeref:typename:int
 createNode	src/linkedLines.c	/^struct LineNode* createNode(char* data) {$/;"	f	typeref:struct:LineNode *
@@ -43,18 +43,17 @@ height	src/termController.h	/^    int height;$/;"	m	struct:TermSize	typeref:type
 insertLetter	src/linkedLines.c	/^void insertLetter(struct LineNode* head, char c, int n, int i) {$/;"	f	typeref:typename:void
 insertLineNode	src/linkedLines.c	/^void insertLineNode(struct LineNode** head, struct LineNode* newNode, int index) {$/;"	f	typeref:typename:void
 insertMode	src/editor.c	/^void insertMode(struct LineNode* head) {$/;"	f	typeref:typename:void
-lineLength	src/linkedLines.c	/^int lineLength(struct LineNode* head, int n) {$/;"	f	typeref:typename:int
-lineLength	src/linkedLines.h	/^int lineLength(struct LineNode* head, int n) {$/;"	f	typeref:typename:int
+lineLength	src/linkedLines.c	/^size_t lineLength(struct LineNode* head, int n) {$/;"	f	typeref:typename:size_t
 main	src/main.c	/^int main(int argc, char** argv) {$/;"	f	typeref:typename:int
 next	src/linkedLines.h	/^    struct LineNode* next;$/;"	m	struct:LineNode	typeref:struct:LineNode *
 normalMode	src/editor.c	/^void normalMode(struct LineNode** head) {$/;"	f	typeref:typename:void
 prependLineNode	src/linkedLines.c	/^void prependLineNode(struct LineNode** head, struct LineNode* newNode) {$/;"	f	typeref:typename:void
 printList	src/linkedLines.c	/^void printList(struct LineNode* head) {$/;"	f	typeref:typename:void
 restoreScreen	src/termController.c	/^void restoreScreen() {$/;"	f	typeref:typename:void
-row	src/editor.c	/^static int row = 1, col = 1;                \/\/ Current cursor position$/;"	v	typeref:typename:int	file:
+row	src/editor.c	/^int row = 1, col = 1;                \/\/ Current cursor position$/;"	v	typeref:typename:int
 saveScreen	src/termController.c	/^void saveScreen() {$/;"	f	typeref:typename:void
 setCursorPosition	src/termController.c	/^void setCursorPosition(int row, int col) {$/;"	f	typeref:typename:void
 term	src/termController.c	/^struct termios term;$/;"	v	typeref:struct:termios
-ts	src/editor.c	/^static struct TermSize* ts = NULL;          \/\/ Struct for terminal dimensions$/;"	v	typeref:struct:TermSize *	file:
+ts	src/editor.c	/^struct TermSize* ts = NULL;          \/\/ Struct for terminal dimensions$/;"	v	typeref:struct:TermSize *
 uncookTerm	src/editor.c	/^void uncookTerm(struct LineNode** head, char* fName) {$/;"	f	typeref:typename:void
 width	src/termController.h	/^    int width;$/;"	m	struct:TermSize	typeref:typename:int

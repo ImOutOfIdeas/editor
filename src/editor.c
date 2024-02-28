@@ -1,8 +1,8 @@
 #include "editor.h"
 
-static int row = 1, col = 1;                // Current cursor position
-static char c;                              // Stores currently pressed character
-static struct TermSize* ts = NULL;          // Struct for terminal dimensions
+int row = 1, col = 1;                // Current cursor position
+char c;                              // Stores currently pressed character
+struct TermSize* ts = NULL;          // Struct for terminal dimensions
 
 void uncookTerm(struct LineNode** head, char* fName) {
     enableRawMode();
@@ -21,6 +21,7 @@ void cookTerm(struct LineNode** head) {
 
 // TODO: make a render loop function (clear, show file (if changed), reposition cursor, update bottom bar
 // Also ensure cursor doesn't go past newline or last line
+// Maybe use Enum for Modes?
 
 
 // TODO: For Normal and insert mode functions. Fix to recognize and use the static variables
@@ -34,7 +35,7 @@ void normalMode(struct LineNode** head) {
         else if (row > ts->height) row = ts->height;  // Bottom bound
         if (col < 1) col = 1;                         // Left bound
         else if (col > ts->width) col = ts->width;    // Right bound
-        else if (col - 1 > lineLength(*head, col - 1)) col = lineLength(*head, col - 1);
+        else if (col > lineLength(*head, col - 1)) col = lineLength(*head, col - 1);
 
         switch(c) {
             // Basic movement (hjkl)
@@ -95,5 +96,7 @@ void insertMode(struct LineNode* head) {
 }
 
 void editorLoop(struct LineNode** head) {
+    normalMode(head);
+
     return;
 }
