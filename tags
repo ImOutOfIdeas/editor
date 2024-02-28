@@ -14,14 +14,18 @@ CC	Makefile	/^CC = gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS = -Wall -Werror -std=c11$/;"	m
 EDITOR_H	src/editor.h	/^#define EDITOR_H$/;"	d
 EXE	Makefile	/^EXE = editor$/;"	m
+EditorMode	src/editor.c	/^enum EditorMode {$/;"	g	file:
 INPUT	Makefile	/^INPUT = test.txt$/;"	m
+INSERT_MODE	src/editor.c	/^    INSERT_MODE,$/;"	e	enum:EditorMode	file:
 LINKEDLINES_H	src/linkedLines.h	/^#define LINKEDLINES_H$/;"	d
 LineNode	src/linkedLines.h	/^struct LineNode {$/;"	s
 MAX_LINE_LENGTH	src/linkedLines.h	/^#define MAX_LINE_LENGTH /;"	d
+NORMAL_MODE	src/editor.c	/^    NORMAL_MODE,$/;"	e	enum:EditorMode	file:
 SRCS	Makefile	/^SRCS = $(wildcard $(SRC_DIR)\/*.c)$/;"	m
 SRC_DIR	Makefile	/^SRC_DIR = src$/;"	m
 TERMCONTROLLER_H	src/termController.h	/^#define TERMCONTROLLER_H$/;"	d
 TermSize	src/termController.h	/^struct TermSize {$/;"	s
+adjustCursorPosition	src/editor.c	/^void adjustCursorPosition(struct LineNode** head, struct TermSize* ts) {$/;"	f	typeref:typename:void
 all	Makefile	/^all: $(EXE)$/;"	t
 appendLineNode	src/linkedLines.c	/^void appendLineNode(struct LineNode** head, struct LineNode* newNode) {$/;"	f	typeref:typename:void
 c	src/editor.c	/^char c;                              \/\/ Stores currently pressed character$/;"	v	typeref:typename:char
@@ -42,11 +46,9 @@ getWindowSize	src/termController.c	/^void getWindowSize(struct TermSize *ts) {$/
 height	src/termController.h	/^    int height;$/;"	m	struct:TermSize	typeref:typename:int
 insertLetter	src/linkedLines.c	/^void insertLetter(struct LineNode* head, char c, int n, int i) {$/;"	f	typeref:typename:void
 insertLineNode	src/linkedLines.c	/^void insertLineNode(struct LineNode** head, struct LineNode* newNode, int index) {$/;"	f	typeref:typename:void
-insertMode	src/editor.c	/^void insertMode(struct LineNode* head) {$/;"	f	typeref:typename:void
 lineLength	src/linkedLines.c	/^size_t lineLength(struct LineNode* head, int n) {$/;"	f	typeref:typename:size_t
 main	src/main.c	/^int main(int argc, char** argv) {$/;"	f	typeref:typename:int
 next	src/linkedLines.h	/^    struct LineNode* next;$/;"	m	struct:LineNode	typeref:struct:LineNode *
-normalMode	src/editor.c	/^void normalMode(struct LineNode** head) {$/;"	f	typeref:typename:void
 prependLineNode	src/linkedLines.c	/^void prependLineNode(struct LineNode** head, struct LineNode* newNode) {$/;"	f	typeref:typename:void
 printList	src/linkedLines.c	/^void printList(struct LineNode* head) {$/;"	f	typeref:typename:void
 restoreScreen	src/termController.c	/^void restoreScreen() {$/;"	f	typeref:typename:void

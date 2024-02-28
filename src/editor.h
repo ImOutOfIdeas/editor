@@ -12,11 +12,9 @@ void uncookTerm(struct LineNode** head, char* fName);
 // Return to normie terminal
 void cookTerm(struct LineNode** head);
 
-// Handles single character input
-void normalMode(struct LineNode** head);
+// Function to perform cursor boundary and in-line checking
+void adjustCursorPosition(struct LineNode** head, struct TermSize* ts);
 
-// Enters insert mode at current cursor position
-void insertMode(struct LineNode* head);
-
+// Handles each modes logic, modal changes, and the draw cycle
 void editorLoop(struct LineNode** head);
 #endif

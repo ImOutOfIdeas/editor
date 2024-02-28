@@ -1,108 +1,71 @@
 #include "editor.h"
 
+enum EditorMode {
+    NORMAL_MODE,
+    INSERT_MODE,
+    // Add more modes as needed
+};
+
 int row = 1, col = 1;                // Current cursor position
 char c;                              // Stores currently pressed character
 struct TermSize* ts = NULL;          // Struct for terminal dimensions
 
 void uncookTerm(struct LineNode** head, char* fName) {
     ts = (struct TermSize*)malloc(sizeof(struct TermSize)); // Initialize terminal dimensions struct
+    setCursorPosition(row, col);
+    getWindowSize(ts);
     createLinkedList(head, fName);
     enableRawMode();
     clear();
-    printList(*head);
 }
 
 void cookTerm(struct LineNode** head) {
-    disableRawMode();
     clear();
+    disableRawMode();
     freeList(*head);    // Free linked list
     free(ts);           // Free terminal size struct
 }
 
-// TODO: make a render loop function (clear, show file (if changed), reposition cursor, update bottom bar
-// Also ensure cursor doesn't go past newline or last line
-// Maybe use Enum for Modes?
+void adjustCursorPosition(struct LineNode** head, struct TermSize* ts) {
+    //int numLines = getNumberOfLines(*head);
+    size_t lineLen = lineLength(*head, row);
 
-void normalMode(struct LineNode** head) {
-    getCursorPosition(&row, &col);
-    getWindowSize(ts);
-
-    while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
-        // TODO: Move cursor postion checking to the main render loop
-        if (row < 1) row = 1;                         // Top bound
-        else if (row > ts->height) row = ts->height;  // Bottom bound
-        if (col < 1) col = 1;                         // Left bound
-        else if (col > ts->width) col = ts->width;    // Right bound
-
-        switch(c) {
-            // Basic movement (hjkl)
-            case 'j': // Down
-                setCursorPosition(++row, col);
-                break;
-            case 'k': // Up
-                setCursorPosition(--row, col);
-                break;
-            case 'h': // Left
-                setCursorPosition(row, --col);
-                break;
-            case 'l': // Right
-                setCursorPosition(row, ++col);
-                break; 
-                // Mode Changes
-            case 'i': // Insertion Mode
-                insertMode(*head);
-                break;
-            default:
-                break;
-        }
-    }
-}
-
-void insertMode(struct LineNode* head) {
-    printf("\e[5 q"); // Turn cursor into bar
-    fflush(stdout);
-
-    while (read(STDIN_FILENO, &c, 1) == 1 && c != 27) {
-        switch(c) {
-            case '1':
-                deleteLetter(head, row, col);
-                setCursorPosition(row, --(col));
-                break;
-            default:
-                insertLetter(head, c, row - 1, col - 1);
-                setCursorPosition(row, ++col);
-                break;
-        }
-        
-        // Draw Cycle for insert mode
-        clear();
-        printList(head);
-
-        setCursorPosition(ts->height, 0);
-
-        printf("%d, %d", row, col);
-        fflush(stdout);
-
-        setCursorPosition(row, col);
-    }
-
+    setCursorPosition(ts->height - 1, 0);
+    printf("%ld", lineLen);
     setCursorPosition(row, col);
 
-    printf("\e[2 q"); // Turn cursor back into block
-    fflush(stdout);
+    if (row < 1) row = 1;                           
+    else if (row > ts->height) row = ts->height;
+    if (col < 1) col = 1;                           
+    else if (col > ts->width) col = ts->width;
+
+    // Row checking
+    //if (row > numLines){
+    //    row = numLines;
+    //}
+
+    // Line checking
+    if (col > lineLen) {
+        col = lineLen;
+    }
 }
 
+// TODO: make a render loop function (clear, show file (if changed), reposition cursor, update bottom bar
 void editorLoop(struct LineNode** head) {
-    enableRawMode();
-    clear();
-    ts = (struct TermSize*)malloc(sizeof(struct TermSize)); // Initialize terminal dimensions struct
-    createLinkedList(head, "filename.txt");
-    printList(*head);
+    enum EditorMode mode = NORMAL_MODE; // Start in normal mode
+    
+    clear();            // Initial screen clear
+    printList(*head);   // Show file contents
 
-    while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
+    while (read(STDIN_FILENO, &c, 1) == 1) {
         switch (mode) {
             case NORMAL_MODE:
                 switch(c) {
+                    case 'i':
+                        mode = INSERT_MODE;
+                        printf("\e[5 q"); // Turn cursor into bar
+                        fflush(stdout);
+                        break;
                     // Basic movement (hjkl)
                     case 'j': // Down
                         setCursorPosition(++row, col);
@@ -121,32 +84,37 @@ void editorLoop(struct LineNode** head) {
                 }
 
                 break;
+
             case INSERT_MODE:
-                // Logic for insert mode
-                // ...
-                break;
-            // Add more cases for other modes
+                switch(c) {
+                    case 27:
+                        mode = NORMAL_MODE;
+                        printf("\e[2 q"); // Turn cursor into block
+                        fflush(stdout);
+                        break;  
+                    case 8:
+                        deleteLetter(*head, row, col);
+                        setCursorPosition(row, --(col));
+                        break;
+                    default:
+                        insertLetter(*head, c, row - 1, col - 1);
+                        setCursorPosition(row, ++col);
+                        break;
+                }
 
-            default:
+            default: // No mode? ¯\_(ツ)_/¯
                 break;
         }
-
-        // Handle mode transitions
-        if (mode == NORMAL_MODE && c == 'i') {
-            mode = INSERT_MODE;
-            printf("\e[5 q"); // Turn cursor into bar
-            fflush(stdout);
-        } else if (mode == INSERT_MODE && c == 27) {
-            mode = NORMAL_MODE;
-            printf("\e[2 q"); // Turn cursor back into block
-            fflush(stdout);
+        
+        // Per mode end of loop logic
+        if (mode == INSERT_MODE) {
+            clear();
+            printList(*head);
+            setCursorPosition(row, col);
         }
+
+        // General end of loop logic
+        adjustCursorPosition(head, ts);
+
     }
-
-    disableRawMode();
-    clear();
-    freeList(*head);    // Free linked list
-    free(ts);           // Free terminal size struct
-    return;
 }
-

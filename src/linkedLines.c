@@ -109,5 +109,5 @@ void deleteLetter(struct LineNode* head, int n, int i) {
 size_t lineLength(struct LineNode* head, int n) {
     for (int i = 0; i < n; i++) head = head->next;
 
-    return strlen(head->data) - 1;
+    return strlen(head->data);
 }
