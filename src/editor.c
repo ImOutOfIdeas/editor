@@ -5,10 +5,10 @@ char c;                              // Stores currently pressed character
 struct TermSize* ts = NULL;          // Struct for terminal dimensions
 
 void uncookTerm(struct LineNode** head, char* fName) {
-    enableRawMode();
-    clear();
     ts = (struct TermSize*)malloc(sizeof(struct TermSize)); // Initialize terminal dimensions struct
     createLinkedList(head, fName);
+    enableRawMode();
+    clear();
     printList(*head);
 }
 
@@ -23,8 +23,6 @@ void cookTerm(struct LineNode** head) {
 // Also ensure cursor doesn't go past newline or last line
 // Maybe use Enum for Modes?
 
-
-// TODO: For Normal and insert mode functions. Fix to recognize and use the static variables
 void normalMode(struct LineNode** head) {
     getCursorPosition(&row, &col);
     getWindowSize(ts);
@@ -35,7 +33,6 @@ void normalMode(struct LineNode** head) {
         else if (row > ts->height) row = ts->height;  // Bottom bound
         if (col < 1) col = 1;                         // Left bound
         else if (col > ts->width) col = ts->width;    // Right bound
-        else if (col > lineLength(*head, col - 1)) col = lineLength(*head, col - 1);
 
         switch(c) {
             // Basic movement (hjkl)
@@ -67,7 +64,7 @@ void insertMode(struct LineNode* head) {
 
     while (read(STDIN_FILENO, &c, 1) == 1 && c != 27) {
         switch(c) {
-            case 8:
+            case '1':
                 deleteLetter(head, row, col);
                 setCursorPosition(row, --(col));
                 break;
@@ -96,7 +93,60 @@ void insertMode(struct LineNode* head) {
 }
 
 void editorLoop(struct LineNode** head) {
-    normalMode(head);
+    enableRawMode();
+    clear();
+    ts = (struct TermSize*)malloc(sizeof(struct TermSize)); // Initialize terminal dimensions struct
+    createLinkedList(head, "filename.txt");
+    printList(*head);
 
+    while (read(STDIN_FILENO, &c, 1) == 1 && c != 'q') {
+        switch (mode) {
+            case NORMAL_MODE:
+                switch(c) {
+                    // Basic movement (hjkl)
+                    case 'j': // Down
+                        setCursorPosition(++row, col);
+                        break;
+                    case 'k': // Up
+                        setCursorPosition(--row, col);
+                        break;
+                    case 'h': // Left
+                        setCursorPosition(row, --col);
+                        break;
+                    case 'l': // Right
+                        setCursorPosition(row, ++col);
+                        break; 
+                    default:
+                        break;
+                }
+
+                break;
+            case INSERT_MODE:
+                // Logic for insert mode
+                // ...
+                break;
+            // Add more cases for other modes
+
+            default:
+                break;
+        }
+
+        // Handle mode transitions
+        if (mode == NORMAL_MODE && c == 'i') {
+            mode = INSERT_MODE;
+            printf("\e[5 q"); // Turn cursor into bar
+            fflush(stdout);
+        } else if (mode == INSERT_MODE && c == 27) {
+            mode = NORMAL_MODE;
+            printf("\e[2 q"); // Turn cursor back into block
+            fflush(stdout);
+        }
+    }
+
+    disableRawMode();
+    clear();
+    freeList(*head);    // Free linked list
+    free(ts);           // Free terminal size struct
     return;
 }
+
