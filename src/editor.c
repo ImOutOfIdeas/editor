@@ -33,7 +33,7 @@ void cookTerm(struct LineNode** head) {
 
 void adjustCursorPosition(struct LineNode** head) {
     size_t numLines = getFileLines(*head);
-    size_t lineLength = getLineLength(*head, row);
+    size_t lineLength = getLineLength(*head, row - 1); // Ensure row is index not line number
 
     if (row < 1) row = 1;                           
     else if (row > ts->height) row = ts->height;
@@ -134,6 +134,7 @@ void editorLoop(struct LineNode** head) {
 
         clear();
         printList(*head);
+        setCursorPosition(row, col);
 
         adjustCursorPosition(head);     // Adjust and put at valid location (if needed)
 

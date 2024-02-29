@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Werror -std=c11
+CFLAGS = -g -Wall -Werror -std=c11
 
 EXE = editor
 INPUT = test.txt

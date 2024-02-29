@@ -105,12 +105,17 @@ void deleteLetter(struct LineNode* head, int n, int i) {
     }
 }
 
-size_t getLineLength(struct LineNode* head, int n) {
-    if (head == NULL) return 0;
-    
-    for (int i = 1; i < n; i++) head = head->next;
 
-    return strlen(head->data);
+size_t getLineLength(struct LineNode* head, int n) {
+    for (int i = 0; i <= n; i++) {
+        if (head == NULL) return 0;
+
+        if (i == n) return (head != NULL) ? strlen(head->data) : 0;
+
+        head = head->next;
+    }
+
+    return 0; // How did you get here
 }
 
 size_t getFileLines(struct LineNode* head) {
