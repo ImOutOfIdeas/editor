@@ -16,7 +16,7 @@ void cookTerm(struct LineNode** head);
 void adjustCursorPosition(struct LineNode** head);
 
 // Draws the status bar at the bottom of the screen
-void drawStatusBar();
+void drawStatusBar(const char* modeStr);
 
 // Handles each modes logic, modal changes, and the draw cycle
 void editorLoop(struct LineNode** head);

@@ -6,6 +6,11 @@ enum EditorMode {
     // Add more modes as needed
 };
 
+static const char * const modeNames[] = {
+	[NORMAL_MODE] = "NORMAL_MODE",
+	[INSERT_MODE] = "INSERT_MODE",
+};
+
 int row = 1, col = 1;                // Current cursor position
 char c;                              // Stores currently pressed character
 struct TermSize* ts = NULL;          // Struct for terminal dimensions
@@ -28,7 +33,7 @@ void cookTerm(struct LineNode** head) {
 
 void adjustCursorPosition(struct LineNode** head) {
     size_t numLines = getFileLines(*head);
-    size_t lineLength = getLineLength(*head, row - 1);
+    size_t lineLength = getLineLength(*head, row);
 
     if (row < 1) row = 1;                           
     else if (row > ts->height) row = ts->height;
@@ -46,18 +51,24 @@ void adjustCursorPosition(struct LineNode** head) {
     }
 }
 
-void drawStatusBar() {
-    setCursorPosition(ts->height, 0);
-
+void drawStatusBar(const char* modeStr) {
     printf("\x1b[30;47m"); // Set text to black (30) and background to white (47)
-    printf("%d, %d", row, col);
+
+    // Draw the white bar across the bottom
+    setCursorPosition(ts->height - 1, 0);
+    for (int i = 0; i < ts->width; i++) printf(" ");
+    fflush(stdout);
+
+    // Draw the information in the bar
+    setCursorPosition(ts->height - 1, 0);
+    printf(" %d, %d     %s", row, col, modeStr);
+    fflush(stdout);
     
     printf("\x1b[0m"); // Reset colors to default (0)
-    fflush(stdout);
-    setCursorPosition(row, col);
+    
+    setCursorPosition(row, col);    // Keep cursor where you left it
 }
 
-// TODO: fix segfaulting problem when going below last line
 void editorLoop(struct LineNode** head) {
     enum EditorMode mode = NORMAL_MODE; // Start in normal mode
     int isQuitter = 0;
@@ -65,6 +76,7 @@ void editorLoop(struct LineNode** head) {
     clear();                        // Initial screen clear
     printList(*head);               // Show file contents
     setCursorPosition(row, col);    // Set cursor to top left
+    drawStatusBar(modeNames[mode]);                // Initial status bar draw
 
     while (isQuitter == 0 && read(STDIN_FILENO, &c, 1) == 1) {
         setCursorPosition(row, col); // Updates cursor every cycle
@@ -106,8 +118,8 @@ void editorLoop(struct LineNode** head) {
                         printf("\e[2 q"); // Turn cursor into block
                         fflush(stdout);
                         break;  
-                    case 8:
-                        deleteLetter(*head, row, col);
+                    case 127:
+                        deleteLetter(*head, row - 1, col);
                         setCursorPosition(row, --(col));
                         break;
                     default:
@@ -119,17 +131,13 @@ void editorLoop(struct LineNode** head) {
             default: // No mode? ¯\_(ツ)_/¯
                 break;
         }
-        
-        // Per mode end of loop logic
-        if (mode == INSERT_MODE) {
-            clear();
-            printList(*head);
-            setCursorPosition(row, col);
-        }
 
-        // General end of loop logic
-        adjustCursorPosition(head); 
-        
-        drawStatusBar();
+        clear();
+        printList(*head);
+
+        adjustCursorPosition(head);     // Adjust and put at valid location (if needed)
+
+        drawStatusBar(modeNames[mode]);
+
     }
 }
