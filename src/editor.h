@@ -12,8 +12,11 @@ void uncookTerm(struct LineNode** head, char* fName);
 // Return to normie terminal
 void cookTerm(struct LineNode** head);
 
-// Function to perform cursor boundary and in-line checking
-void adjustCursorPosition(struct LineNode** head, struct TermSize* ts);
+// Performs cursor boundary and in-line checking
+void adjustCursorPosition(struct LineNode** head);
+
+// Draws the status bar at the bottom of the screen
+void drawStatusBar();
 
 // Handles each modes logic, modal changes, and the draw cycle
 void editorLoop(struct LineNode** head);

@@ -25,7 +25,7 @@ SRCS	Makefile	/^SRCS = $(wildcard $(SRC_DIR)\/*.c)$/;"	m
 SRC_DIR	Makefile	/^SRC_DIR = src$/;"	m
 TERMCONTROLLER_H	src/termController.h	/^#define TERMCONTROLLER_H$/;"	d
 TermSize	src/termController.h	/^struct TermSize {$/;"	s
-adjustCursorPosition	src/editor.c	/^void adjustCursorPosition(struct LineNode** head, struct TermSize* ts) {$/;"	f	typeref:typename:void
+adjustCursorPosition	src/editor.c	/^void adjustCursorPosition(struct LineNode** head) {$/;"	f	typeref:typename:void
 all	Makefile	/^all: $(EXE)$/;"	t
 appendLineNode	src/linkedLines.c	/^void appendLineNode(struct LineNode** head, struct LineNode* newNode) {$/;"	f	typeref:typename:void
 c	src/editor.c	/^char c;                              \/\/ Stores currently pressed character$/;"	v	typeref:typename:char
@@ -38,15 +38,17 @@ createNode	src/linkedLines.c	/^struct LineNode* createNode(char* data) {$/;"	f	t
 data	src/linkedLines.h	/^    char* data;$/;"	m	struct:LineNode	typeref:typename:char *
 deleteLetter	src/linkedLines.c	/^void deleteLetter(struct LineNode* head, int n, int i) {$/;"	f	typeref:typename:void
 disableRawMode	src/termController.c	/^int disableRawMode() {$/;"	f	typeref:typename:int
+drawStatusBar	src/editor.c	/^void drawStatusBar() {$/;"	f	typeref:typename:void
 editorLoop	src/editor.c	/^void editorLoop(struct LineNode** head) {$/;"	f	typeref:typename:void
 enableRawMode	src/termController.c	/^int enableRawMode() {$/;"	f	typeref:typename:int
 freeList	src/linkedLines.c	/^void freeList(struct LineNode* head) {$/;"	f	typeref:typename:void
 getCursorPosition	src/termController.c	/^int getCursorPosition(int *rows, int *cols) {$/;"	f	typeref:typename:int
+getFileLines	src/linkedLines.c	/^size_t getFileLines(struct LineNode* head) {$/;"	f	typeref:typename:size_t
+getLineLength	src/linkedLines.c	/^size_t getLineLength(struct LineNode* head, int n) {$/;"	f	typeref:typename:size_t
 getWindowSize	src/termController.c	/^void getWindowSize(struct TermSize *ts) {$/;"	f	typeref:typename:void
 height	src/termController.h	/^    int height;$/;"	m	struct:TermSize	typeref:typename:int
 insertLetter	src/linkedLines.c	/^void insertLetter(struct LineNode* head, char c, int n, int i) {$/;"	f	typeref:typename:void
 insertLineNode	src/linkedLines.c	/^void insertLineNode(struct LineNode** head, struct LineNode* newNode, int index) {$/;"	f	typeref:typename:void
-lineLength	src/linkedLines.c	/^size_t lineLength(struct LineNode* head, int n) {$/;"	f	typeref:typename:size_t
 main	src/main.c	/^int main(int argc, char** argv) {$/;"	f	typeref:typename:int
 next	src/linkedLines.h	/^    struct LineNode* next;$/;"	m	struct:LineNode	typeref:struct:LineNode *
 prependLineNode	src/linkedLines.c	/^void prependLineNode(struct LineNode** head, struct LineNode* newNode) {$/;"	f	typeref:typename:void

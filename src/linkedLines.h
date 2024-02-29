@@ -44,8 +44,9 @@ void insertLetter(struct LineNode* head, char c, int n, int i);
 void deleteLetter(struct LineNode* head, int n, int i);
 
 // Gets length of data from n-th node of linked-list head
-size_t lineLength(struct LineNode* head, int n);
+size_t getLineLength(struct LineNode* head, int n);
 
-// TODO: create listLength method for cursor bound checking in normalMode()
+// Gets the number of lines in the file
+size_t getFileLines(struct LineNode* head);
 
 #endif

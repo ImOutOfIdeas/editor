@@ -26,13 +26,9 @@ void cookTerm(struct LineNode** head) {
     free(ts);           // Free terminal size struct
 }
 
-void adjustCursorPosition(struct LineNode** head, struct TermSize* ts) {
-    //int numLines = getNumberOfLines(*head);
-    size_t lineLen = lineLength(*head, row);
-
-    setCursorPosition(ts->height - 1, 0);
-    printf("%ld", lineLen);
-    setCursorPosition(row, col);
+void adjustCursorPosition(struct LineNode** head) {
+    size_t numLines = getFileLines(*head);
+    size_t lineLength = getLineLength(*head, row - 1);
 
     if (row < 1) row = 1;                           
     else if (row > ts->height) row = ts->height;
@@ -40,27 +36,45 @@ void adjustCursorPosition(struct LineNode** head, struct TermSize* ts) {
     else if (col > ts->width) col = ts->width;
 
     // Row checking
-    //if (row > numLines){
-    //    row = numLines;
-    //}
+    if (row > numLines){
+        row = numLines;
+    }
 
     // Line checking
-    if (col > lineLen) {
-        col = lineLen;
+    if (col > lineLength) {
+        col = lineLength;
     }
 }
 
-// TODO: make a render loop function (clear, show file (if changed), reposition cursor, update bottom bar
+void drawStatusBar() {
+    setCursorPosition(ts->height, 0);
+
+    printf("\x1b[30;47m"); // Set text to black (30) and background to white (47)
+    printf("%d, %d", row, col);
+    
+    printf("\x1b[0m"); // Reset colors to default (0)
+    fflush(stdout);
+    setCursorPosition(row, col);
+}
+
+// TODO: fix segfaulting problem when going below last line
 void editorLoop(struct LineNode** head) {
     enum EditorMode mode = NORMAL_MODE; // Start in normal mode
-    
-    clear();            // Initial screen clear
-    printList(*head);   // Show file contents
+    int isQuitter = 0;
 
-    while (read(STDIN_FILENO, &c, 1) == 1) {
+    clear();                        // Initial screen clear
+    printList(*head);               // Show file contents
+    setCursorPosition(row, col);    // Set cursor to top left
+
+    while (isQuitter == 0 && read(STDIN_FILENO, &c, 1) == 1) {
+        setCursorPosition(row, col); // Updates cursor every cycle
+
         switch (mode) {
             case NORMAL_MODE:
                 switch(c) {
+                    case 'q':
+                        isQuitter = 1;
+                        break;
                     case 'i':
                         mode = INSERT_MODE;
                         printf("\e[5 q"); // Turn cursor into bar
@@ -114,7 +128,8 @@ void editorLoop(struct LineNode** head) {
         }
 
         // General end of loop logic
-        adjustCursorPosition(head, ts);
-
+        adjustCursorPosition(head); 
+        
+        drawStatusBar();
     }
 }

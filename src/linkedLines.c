@@ -54,7 +54,6 @@ int createLinkedList(struct LineNode** head, const char* fName) {
     rewind(f);              // Reset file pointer
 
     while (fgets(line, sizeof(line), f) != NULL) {
-
         appendLineNode(head, createNode(line));
     }   
 
@@ -106,8 +105,21 @@ void deleteLetter(struct LineNode* head, int n, int i) {
     }
 }
 
-size_t lineLength(struct LineNode* head, int n) {
+size_t getLineLength(struct LineNode* head, int n) {
     for (int i = 0; i < n; i++) head = head->next;
 
     return strlen(head->data);
 }
+
+size_t getFileLines(struct LineNode* head) {
+    if (head == NULL) return 0;
+    
+    size_t size = 1; // Non-empty file can't have zero lines 
+    while (head->next != NULL) {
+        size++;
+        head = head->next;
+    }
+
+    return size;
+}
+
