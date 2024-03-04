@@ -119,7 +119,7 @@ void editorLoop(struct LineNode** head) {
                         fflush(stdout);
                         break;  
                     case 127:
-                        deleteLetter(*head, row - 1, col);
+                        deleteLetter(*head, row - 1, col - 2);
                         setCursorPosition(row, --(col));
                         break;
                     default:
