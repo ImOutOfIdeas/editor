@@ -9,9 +9,7 @@ int main(int argc, char** argv) {
 
     struct LineNode* head = NULL;
 
-    uncookTerm(&head, argv[1]);
-    editorLoop(&head);
-    cookTerm(&head);
+    startEditor(&head, argv[1]);
 
     return 0;
 }

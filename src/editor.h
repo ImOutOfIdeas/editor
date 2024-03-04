@@ -6,18 +6,10 @@
 #include "termController.h"
 #include "linkedLines.h"
 
-// Ready terminal for TUI
-void uncookTerm(struct LineNode** head, char* fName);
+void uncookTerminal(struct LineNode** head, struct TermSize* ts, char* fileName);
+void cookTerminal(struct LineNode** head, struct TermSize* ts);
+void adjustCursorPosition(struct LineNode** head, struct TermSize* ts, int* row, int* col);
+void drawStatusBar(const char* modeName, struct TermSize* ts, int row, int col);
+void startEditor(struct LineNode** head, char* fileName);
 
-// Return to normie terminal
-void cookTerm(struct LineNode** head);
-
-// Performs cursor boundary and in-line checking
-void adjustCursorPosition(struct LineNode** head);
-
-// Draws the status bar at the bottom of the screen
-void drawStatusBar(const char* modeStr);
-
-// Handles each modes logic, modal changes, and the draw cycle
-void editorLoop(struct LineNode** head);
 #endif

@@ -3,7 +3,6 @@
 enum EditorMode {
     NORMAL_MODE,
     INSERT_MODE,
-    // Add more modes as needed
 };
 
 static const char * const modeNames[] = {
@@ -11,72 +10,73 @@ static const char * const modeNames[] = {
 	[INSERT_MODE] = "INSERT_MODE",
 };
 
-int row = 1, col = 1;                // Current cursor position
-char c;                              // Stores currently pressed character
-struct TermSize* ts = NULL;          // Struct for terminal dimensions
-
-void uncookTerm(struct LineNode** head, char* fName) {
-    ts = (struct TermSize*)malloc(sizeof(struct TermSize)); // Initialize terminal dimensions struct
-    setCursorPosition(row, col);
+void uncookTerminal(struct LineNode** head, struct TermSize* ts, char* fileName) {
+    createLinkedList(head, fileName);
     getWindowSize(ts);
-    createLinkedList(head, fName);
+
     enableRawMode();
+
     clear();
+    printList(*head);
 }
 
-void cookTerm(struct LineNode** head) {
+void cookTerminal(struct LineNode** head, struct TermSize* ts) {
+    freeList(*head);
+    free(ts);
+
     clear();
     disableRawMode();
-    freeList(*head);    // Free linked list
-    free(ts);           // Free terminal size struct
 }
 
-void adjustCursorPosition(struct LineNode** head) {
-    size_t numLines = getFileLines(*head);
-    size_t lineLength = getLineLength(*head, row - 1); // Ensure row is index not line number
+void adjustCursorPosition(struct LineNode** head, struct TermSize* ts, int* row, int* col) {
+    size_t numLines = lineCount(*head);
+    size_t lineLength = lineLengthAt(*head, *row - 1);
 
-    if (row < 1) row = 1;                           
-    else if (row > ts->height) row = ts->height;
-    if (col < 1) col = 1;                           
-    else if (col > ts->width) col = ts->width;
+    if (*row < 1) *row = 1;                           
+    else if (*row > ts->height) *row = ts->height;
+    if (*col < 1) *col = 1;                           
+    else if (*col > ts->width) *col = ts->width;
 
     // Row checking
-    if (row > numLines){
-        row = numLines;
+    if (*row > numLines){
+        *row = numLines;
     }
 
     // Line checking
-    if (col > lineLength) {
-        col = lineLength;
+    if (*col > lineLength) {
+        *col = lineLength;
     }
 }
 
-void drawStatusBar(const char* modeStr) {
+void drawStatusBar(const char* modeName, struct TermSize* ts, int row, int col) {
     printf("\x1b[30;47m"); // Set text to black (30) and background to white (47)
 
-    // Draw the white bar across the bottom
     setCursorPosition(ts->height - 1, 0);
     for (int i = 0; i < ts->width; i++) printf(" ");
     fflush(stdout);
 
-    // Draw the information in the bar
     setCursorPosition(ts->height - 1, 0);
-    printf(" %d, %d     %s", row, col, modeStr);
+    printf(" %d, %d     %s", row, col, modeName);
     fflush(stdout);
     
-    printf("\x1b[0m"); // Reset colors to default (0)
+    printf("\x1b[0m"); // Reset to default terminal colors (0)
     
-    setCursorPosition(row, col);    // Keep cursor where you left it
+    setCursorPosition(row, col);
 }
 
-void editorLoop(struct LineNode** head) {
-    enum EditorMode mode = NORMAL_MODE; // Start in normal mode
-    int isQuitter = 0;
+void startEditor(struct LineNode** head, char* fileName) {
+    enum EditorMode mode = NORMAL_MODE;
+    struct TermSize* ts = NULL;
+    ts = (struct TermSize*)malloc(sizeof(struct TermSize));
 
-    clear();                        // Initial screen clear
-    printList(*head);               // Show file contents
-    setCursorPosition(row, col);    // Set cursor to top left
-    drawStatusBar(modeNames[mode]);                // Initial status bar draw
+    int isQuitter = 0;
+    int row = 1, col = 1;
+    char c;
+
+    uncookTerminal(head, ts, fileName);
+
+    setCursorPosition(row, col);
+    drawStatusBar(modeNames[mode], ts, row, col);
 
     while (isQuitter == 0 && read(STDIN_FILENO, &c, 1) == 1) {
         setCursorPosition(row, col); // Updates cursor every cycle
@@ -92,17 +92,16 @@ void editorLoop(struct LineNode** head) {
                         printf("\e[5 q"); // Turn cursor into bar
                         fflush(stdout);
                         break;
-                    // Basic movement (hjkl)
-                    case 'j': // Down
+                    case 'j':
                         setCursorPosition(++row, col);
                         break;
-                    case 'k': // Up
+                    case 'k':
                         setCursorPosition(--row, col);
                         break;
-                    case 'h': // Left
+                    case 'h':
                         setCursorPosition(row, --col);
                         break;
-                    case 'l': // Right
+                    case 'l':
                         setCursorPosition(row, ++col);
                         break; 
                     default:
@@ -134,11 +133,13 @@ void editorLoop(struct LineNode** head) {
 
         clear();
         printList(*head);
+
+        adjustCursorPosition(head, ts, &row, &col);
+
         setCursorPosition(row, col);
 
-        adjustCursorPosition(head);     // Adjust and put at valid location (if needed)
-
-        drawStatusBar(modeNames[mode]);
-
+        drawStatusBar(modeNames[mode], ts, row, col);
     }
+
+    cookTerminal(head, ts);
 }

@@ -249,7 +249,7 @@ size_t lineLengthAt(struct LineNode* head, int n) {
         return 0;
     }
 
-    for (int i = 0; i <= n; i++) {
+    for (int i = 0; i < n; i++) {
         if (head == NULL) {
             return 0;
         }
