@@ -37,18 +37,16 @@ void adjustCursorPosition(struct LineNode** head, struct TermSize* ts, int* row,
     if (*col < 1) *col = 1;                           
     else if (*col > ts->width) *col = ts->width;
 
-    // Row checking
     if (*row > numLines){
         *row = numLines;
     }
 
-    // Line checking
     if (*col > lineLength) {
         *col = lineLength;
     }
 }
 
-void drawStatusBar(const char* modeName, struct TermSize* ts, int row, int col) {
+void drawStatusBar(const char* modeName, const char* fileName, struct TermSize* ts, int row, int col) {
     printf("\x1b[30;47m"); // Set text to black (30) and background to white (47)
 
     setCursorPosition(ts->height - 1, 0);
@@ -56,7 +54,7 @@ void drawStatusBar(const char* modeName, struct TermSize* ts, int row, int col) 
     fflush(stdout);
 
     setCursorPosition(ts->height - 1, 0);
-    printf(" %d, %d     %s", row, col, modeName);
+    printf(" %d, %d     %s     %s", row, col, modeName, fileName);
     fflush(stdout);
     
     printf("\x1b[0m"); // Reset to default terminal colors (0)
@@ -76,7 +74,7 @@ void startEditor(struct LineNode** head, char* fileName) {
     uncookTerminal(head, ts, fileName);
 
     setCursorPosition(row, col);
-    drawStatusBar(modeNames[mode], ts, row, col);
+    drawStatusBar(modeNames[mode], fileName, ts, row, col);
 
     while (isQuitter == 0 && read(STDIN_FILENO, &c, 1) == 1) {
         setCursorPosition(row, col); // Updates cursor every cycle
@@ -117,9 +115,17 @@ void startEditor(struct LineNode** head, char* fileName) {
                         printf("\e[2 q"); // Turn cursor into block
                         fflush(stdout);
                         break;  
+                    case 10:
+                        // TODO: GET ENTER WORKING
+                        // Remove the substring from current line after cursor (append with \n)
+                        // Add the removed substrin to a new node and insert at row
+                        struct LineNode* newNode = createNode("\n");
+                        insertLineNode(head, newNode, row);
+                        setCursorPosition(++row, col);
+                        break;
                     case 127:
                         deleteLetter(*head, row - 1, col - 2);
-                        setCursorPosition(row, --(col));
+                        setCursorPosition(row, --col);
                         break;
                     default:
                         insertLetter(*head, c, row - 1, col - 1);
@@ -138,7 +144,7 @@ void startEditor(struct LineNode** head, char* fileName) {
 
         setCursorPosition(row, col);
 
-        drawStatusBar(modeNames[mode], ts, row, col);
+        drawStatusBar(modeNames[mode], fileName, ts, row, col);
     }
 
     cookTerminal(head, ts);
